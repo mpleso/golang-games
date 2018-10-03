@@ -124,7 +124,7 @@ func validMoves(tok int, n int, cell [30]int) (v []int) { // add opt jumping rul
 			//add 26 case
 		}
 	}
-	for i := 26; i < 30; i++ { //FIXME
+	for i := 26; i < 30; i++ { //TODO
 	}
 	return v
 }
@@ -149,12 +149,12 @@ func getMove(tok int, pTok int, v []int, cell [30]int) (m int) {
 		}
 	}
 
-	//FIXME computer move
+	//TODO computer move
 	return m
 }
 
 func updateBoard(tok int, m int, n int, cell [30]int) (over bool) { //include swap, include waters, include bear off
-	//FIXME
+	//TODO
 
 	c := 0
 	for _, j := range cell {
