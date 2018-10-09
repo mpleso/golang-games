@@ -4,6 +4,10 @@
 
 // senet board game
 
+// TODO web
+// TODO test cases
+// TODO computer move
+
 package main
 
 import (
@@ -15,22 +19,22 @@ import (
 )
 
 func main() {
-	cell := [30]int{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0} // 7
+	board := [30]int{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0} // opt 7
 	for i := 14; i < 30; i++ {
-		cell[i] = -1
+		board[i] = -1
 	}
 	pl1Token := 0 // user is pyramids
 
 	for token := 0; ; token ^= 1 { // pyramids(0) always go first
 		for {
-			printBoard(cell)
+			printBoard(board)
 			n := throwSticks()
 			var v []int
-			if v = validMoves(token, n, cell); len(v) == 0 {
+			if v = validMoves(token, n, board); len(v) == 0 {
 				continue
 			}
-			m := getMove(token, pl1Token, v, cell)
-			if updateBoard(token, m, n, cell) {
+			m := getUserMove(token, pl1Token, v, board)
+			if updateBoard(token, m, n, &board) {
 				s := "You lost."
 				if token == pl1Token {
 					s = "You won!"
@@ -46,7 +50,7 @@ func main() {
 	}
 }
 
-func printBoard(cell [30]int) {
+func printBoard(board [30]int) {
 	k := 0
 	fmt.Println()
 	fmt.Println("     1   2   3   4   5   6   7   8   9  10 ")
@@ -59,12 +63,12 @@ func printBoard(cell [30]int) {
 			if j == 1 {
 				k = 19 - i
 			}
-			switch cell[k] {
+			switch board[k] {
 			case 0:
 				fmt.Printf(" A |")
 				continue
 			case 1:
-				fmt.Printf(" 8 |")
+				fmt.Printf(" O |")
 				continue
 			default:
 				switch k {
@@ -75,9 +79,9 @@ func printBoard(cell [30]int) {
 				case 26:
 					fmt.Printf(" ~ |") // water - chaos
 				case 27:
-					fmt.Printf(" : |") // three truths
+					fmt.Printf(" 3 |") // three truths
 				case 28:
-					fmt.Printf(" q |") // eye - Re-Atum
+					fmt.Printf(" @ |") // eye - Re-Atum
 				default:
 					fmt.Printf("   |")
 				}
@@ -102,34 +106,39 @@ func throwSticks() (n int) {
 	return nn[n]
 }
 
-func validMoves(tok int, n int, cell [30]int) (v []int) { // add opt jumping rules, opt 3rd row clear
+func validMoves(tok int, n int, board [30]int) (v []int) { // add opt jumping rules, opt 3rd row clear to bear off
 	for i := 0; i < 26; i++ {
-		if cell[i] == tok {
-			if (i + n) > 26 { // must stop at bird
-				continue
-			}
-			if cell[i+n] == tok { // can't bump own piece
-				continue
-			}
-			if cell[i+n] == -1 { // empty
+		if (i + n) > 26 { // stop at bird
+			continue
+		}
+		if board[i+n] == tok && board[i] == tok { // can't bump own piece
+			continue
+		}
+		if board[i+n] == -1 && board[i] == tok { // empty space
+			v = append(v, i)
+			continue
+		}
+		if (i+n+1) < 26 && board[i] == tok { // must be a blot
+			if board[i+n] == (tok^1) && board[i+n+1] != (tok^1) && board[i+n-1] != (tok^1) {
 				v = append(v, i)
 				continue
 			}
-			if (i + n + 1) < 26 { // must be a blot
-				if cell[i+n] == (tok^1) && cell[i+n+1] != (tok^1) && cell[i+n-1] != (tok^1) {
-					v = append(v, i)
-					continue
-				}
-			}
-			//add 26 case
 		}
 	}
-	for i := 26; i < 30; i++ { //TODO
+	for i := 26; i < 27; i++ {
+		if i == 26 && (i+n) < 31 && board[i] == tok {
+			v = append(v, i)
+		}
+	}
+	for i := 27; i < 30; i++ {
+		if (i+n) == 31 && board[i] == tok {
+			v = append(v, i)
+		}
 	}
 	return v
 }
 
-func getMove(tok int, pTok int, v []int, cell [30]int) (m int) {
+func getUserMove(tok int, pTok int, v []int, board [30]int) (m int) {
 	input := ""
 	if tok == pTok {
 		for {
@@ -148,23 +157,28 @@ func getMove(tok int, pTok int, v []int, cell [30]int) (m int) {
 			}
 		}
 	}
-
-	//TODO computer move
 	return m
 }
 
-func updateBoard(tok int, m int, n int, cell [30]int) (over bool) { //include swap, include waters, include bear off
-	//TODO
+func getComputerMove(tok int, pTok int, v []int, board [30]int) (m int) {
+	return 0
+}
 
-	c := 0
-	for _, j := range cell {
+func updateBoard(tok int, m int, n int, board *[30]int) (over bool) {
+	if board[m+n] != -1 {
+		board[m] = board[m+n]
+	} else {
+		board[m] = -1
+	}
+	board[m+n] = tok
+
+	//ADD waters
+	//ADD bearoff
+
+	for _, j := range board {
 		if j == tok {
-			c++
+			return false
 		}
 	}
-	c = 0 //TEMP
-	if c == 0 {
-		return true
-	}
-	return false
+	return true
 }
