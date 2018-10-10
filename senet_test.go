@@ -29,25 +29,26 @@ func TestValidMove(t *testing.T) {
 	var tests = []struct {
 		inputTok   int
 		inputN     int
-		inputBoard [30]int
+		inputBoard Board
 		expected   []int
 	}{
-		{P, 5, [30]int{
+		{P, 5, Board{
 			S, P, S, P, S, P, S, P, S, P,
 			S, P, S, P, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 			[]int{1, 3, 5, 7, 9, 11, 13}},
+		{P, 5, Board{
+			S, P, S, P, S, P, S, S, P, P,
+			S, P, S, P, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			[]int{5, 9, 11, 13}},
 	}
 
 	for _, test := range tests {
 		if output := validMoves(test.inputTok, test.inputN, (test.inputBoard)); !reflect.DeepEqual(output, test.expected) {
-			t.Error("Test Failed: {} expected, recieved: {}", test.expected, output) //FIXME
+			t.Error("Test Failed: {} expected, recieved: {}", test.expected, output)
 		}
 	}
-}
-
-func rev(inp [30]int) (out [30]int) {
-	return inp
 }
 
 //FIXME add TestUpdateBoard

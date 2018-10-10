@@ -5,9 +5,10 @@
 // senet board game
 
 // TODO web
-// TODO test cases
 // TODO automated move
 // TODO add cmdline options
+// TODO special moves
+// TODO pl2
 
 package main
 
@@ -27,13 +28,13 @@ const (
 type Board [30]int // type
 
 func main() {
-	board := [30]int{S, P, S, P, S, P, S, P, S, P, S, P, S, P} // add opt 5
+	board := Board{S, P, S, P, S, P, S, P, S, P, S, P, S, P} // add opt 5
 
-	pl1Token := P // user is pyramids
+	pl1Token := P // add opt S
 
-	for token := P; ; token ^= 0x1 { // pyramids go first
-		fmt.Println(token)
+	for token := P; ; token ^= 0x1 {
 		for {
+			fmt.Println("TOKEN=", token)
 			printBoard(board)
 			n := throwSticks()
 			var v []int
@@ -57,11 +58,11 @@ func main() {
 	}
 }
 
-func printBoard(board [30]int) {
+func printBoard(board Board) {
 	k := 0
 	fmt.Println()
-	fmt.Println("     1   2   3   4   5   6   7   8   9  10 ")
-	fmt.Println("    20  19  18  17  16  15  14  13  12  11 ")
+	fmt.Println("     0   1   2   3   4   5   6   7   8   9 ")
+	fmt.Println("    19  18  17  16  15  14  13  12  11  10 ")
 	fmt.Println("  +---+---+---+---+---+---+---+---+---+---+")
 	for j := 0; j < 3; j++ {
 		fmt.Print("  |")
@@ -96,7 +97,7 @@ func printBoard(board [30]int) {
 		}
 		fmt.Println("\n  +---+---+---+---+---+---+---+---+---+---+")
 	}
-	fmt.Println("    21  22  23  24  25  26  27  28  29  30 ")
+	fmt.Println("    20  21  22  23  24  25  26  27  28  29 ")
 }
 
 func throwSticks() (n int) {
@@ -113,7 +114,7 @@ func throwSticks() (n int) {
 	return nn[n]
 }
 
-func validMoves(tok int, n int, board [30]int) (v []int) { // add opt jumping rules, opt 3rd row clear to bear off
+func validMoves(tok int, n int, board Board) (v []int) { // add opt jumping rules, opt 3rd row clear to bear off
 	for i := 0; i < 26; i++ {
 		if (i + n) > 26 { // stop at bird
 			continue
@@ -145,18 +146,17 @@ func validMoves(tok int, n int, board [30]int) (v []int) { // add opt jumping ru
 	return v
 }
 
-func getUserMove(tok int, pTok int, v []int, board [30]int) (m int) {
+func getUserMove(tok int, pTok int, v []int, board Board) (m int) {
 	input := ""
 	if tok == pTok {
 		for {
 			fmt.Print(" Moves:")
 			for i := range v {
-				fmt.Print(" ", v[i]+1)
+				fmt.Print(" ", v[i])
 			}
 			fmt.Print("\n Enter: ")
 			fmt.Scanln(&input)
 			m, _ := strconv.Atoi(input)
-			m--
 			for i := range v {
 				if v[i] == m {
 					return m
@@ -167,11 +167,11 @@ func getUserMove(tok int, pTok int, v []int, board [30]int) (m int) {
 	return m
 }
 
-func getComputerMove(tok int, pTok int, v []int, board [30]int) (m int) {
+func getComputerMove(tok int, pTok int, v []int, board Board) (m int) {
 	return 0
 }
 
-func updateBoard(tok int, m int, n int, board *[30]int) (over bool) {
+func updateBoard(tok int, m int, n int, board *Board) (over bool) {
 	if board[m+n] != 0 {
 		board[m] = board[m+n]
 	} else {
