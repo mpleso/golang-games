@@ -6,7 +6,8 @@
 
 // TODO web
 // TODO test cases
-// TODO computer move
+// TODO automated move
+// TODO add cmdline options
 
 package main
 
@@ -18,14 +19,20 @@ import (
 	"time"
 )
 
-func main() {
-	board := [30]int{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0} // opt 7
-	for i := 14; i < 30; i++ {
-		board[i] = -1
-	}
-	pl1Token := 0 // user is pyramids
+const (
+	P = 2 //pyramids
+	S = 3 //spools
+)
 
-	for token := 0; ; token ^= 1 { // pyramids(0) always go first
+type Board [30]int // type
+
+func main() {
+	board := [30]int{S, P, S, P, S, P, S, P, S, P, S, P, S, P} // add opt 5
+
+	pl1Token := P // user is pyramids
+
+	for token := P; ; token ^= 0x1 { // pyramids go first
+		fmt.Println(token)
 		for {
 			printBoard(board)
 			n := throwSticks()
@@ -64,10 +71,10 @@ func printBoard(board [30]int) {
 				k = 19 - i
 			}
 			switch board[k] {
-			case 0:
+			case P:
 				fmt.Printf(" A |")
 				continue
-			case 1:
+			case S:
 				fmt.Printf(" O |")
 				continue
 			default:
@@ -79,7 +86,7 @@ func printBoard(board [30]int) {
 				case 26:
 					fmt.Printf(" ~ |") // water - chaos
 				case 27:
-					fmt.Printf(" 3 |") // three truths
+					fmt.Printf(" : |") // three truths
 				case 28:
 					fmt.Printf(" @ |") // eye - Re-Atum
 				default:
@@ -114,11 +121,11 @@ func validMoves(tok int, n int, board [30]int) (v []int) { // add opt jumping ru
 		if board[i+n] == tok && board[i] == tok { // can't bump own piece
 			continue
 		}
-		if board[i+n] == -1 && board[i] == tok { // empty space
+		if board[i+n] == 0 && board[i] == tok { // empty
 			v = append(v, i)
 			continue
 		}
-		if (i+n+1) < 26 && board[i] == tok { // must be a blot
+		if (i+n+1) < 26 && board[i] == tok { // blot
 			if board[i+n] == (tok^1) && board[i+n+1] != (tok^1) && board[i+n-1] != (tok^1) {
 				v = append(v, i)
 				continue
@@ -165,10 +172,10 @@ func getComputerMove(tok int, pTok int, v []int, board [30]int) (m int) {
 }
 
 func updateBoard(tok int, m int, n int, board *[30]int) (over bool) {
-	if board[m+n] != -1 {
+	if board[m+n] != 0 {
 		board[m] = board[m+n]
 	} else {
-		board[m] = -1
+		board[m] = 0
 	}
 	board[m+n] = tok
 
